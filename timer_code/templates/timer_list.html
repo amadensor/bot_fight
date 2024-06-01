@@ -1,0 +1,79 @@
+{% args timers %}
+<html>
+
+<body>
+    <form method="post">
+        <table border="1">
+            {% for timer in timers %}
+            <tr>
+                <td>Name</td>
+                <td>
+                    <input type="text" name="config_name" value="{{ timer.get('config_name')}}">
+                </td>
+            </tr>
+            <tr>
+                <td>Time Limit</td>
+                <td>
+                    <input type=text name="time_limit_minutes" value="{{ timer.get('time_limit_minutes') }}">
+                    :
+                    <input type=text name="time_limit_seconds" value="{{ timer.get('time_limit_seconds') }}">
+                </td>
+            </tr>
+            <tr>
+                <td>Pit Activation Time</td>
+                <td>
+                    <input type="text" name="pits_time_minutes" value="{{ timer.get('pits_time_minutes')}}">
+                    :
+                    <input type="text" name="pits_time_seconds" value="{{ timer.get('pits_time_seconds')}}">
+                </td>
+            </tr>
+            <tr>
+                <td>Countdown Duration</td>
+                <td>
+                    <input type="text" name="countdown_duration" value="{{ timer.get('countdown_duration')}}">
+                </td>
+            </tr>
+            <tr>
+                <td>Individual Controls</td>
+                <td><select name="competitor_controls">
+                        <option value="True" {% if timer.get('competitor_controls') %}selected{% endif %}>
+                            Yes
+                        </option>
+                        <option value="False" {% if not timer.get('competitor_controls') %}selected{% endif %}>
+                            No
+                        </option>
+                    </select></td>
+            </tr>
+            <tr>
+                <td>Pits Active?</td>
+                <td>
+                    <select name="pits_active">
+                        <option value='True' {% if timer.get('pits_active') %} selected {% endif %}>
+                            Yes
+                        </option>
+                        <option value="False" {% if not timer.get('pits_active') %} selected {% endif %}>
+                            No
+                        </option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Box Lights</td>
+                <td>
+                    <select name="box_lights">
+                        <option value="True" {% if timer.get('box_lights') %}selected{% endif %}>
+                            Yes
+                        </option>
+                        <option value="False" {% if not timer.get('box_lights') %}selected{% endif %}>
+                            No
+                        </option>
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <input type="submit">
+    </form>
+</body>
+
+</html>
