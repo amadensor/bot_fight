@@ -1,0 +1,38 @@
+meta {
+  name: Timer change
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://192.168.2.21/timers
+  body: json
+  auth: none
+}
+
+body:json {
+  [
+          {
+              "box_lights": true,
+              "time_limit_minutes": 3,
+              "pits_time_minutes": 2,
+              "time_limit_seconds": 0,
+              "countdown_duration": 10,
+              "pits_active": true,
+              "pits_time_seconds": 0,
+              "config_name": "Combat",
+              "competitor_controls": false
+          },
+  {
+              "box_lights": true,
+              "time_limit_minutes": 2,
+              "pits_time_minutes": 1,
+              "time_limit_seconds": 0,
+              "countdown_duration": 10,
+              "pits_active": true,
+              "pits_time_seconds": 0,
+              "config_name": "Control",
+              "competitor_controls": false
+          }
+      ]
+}
