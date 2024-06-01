@@ -11,8 +11,10 @@ class BotTimer():
     start_time=0
     stop_time=0
     mode='stop'
+    hold_mode='run'
     config=0
     countdown_start=0
+    elapsed=0
 
 run_timer=BotTimer()
 
@@ -56,18 +58,36 @@ async def stop(request):
     run_timer.mode='stop'
 @app.get('/reset')
 async def reset(request):
-    run_timer.stop_time=0
-    run_timer.mode='stop'
+    if run_timer.mode=='pause':
+        run_timer.start_time=time.ticks_ms()-run_timer.elapsed
+        run_timer.mode='run'
+    else:
+        if run_timer.mode=='run':
+            run_timer.elapsed=time.ticks_ms()-run_timer.start_time
+            run_timer.mode='pause'
+    if run_timer.mode=='countdown':
+        run_timer.mode='run'
 @app.get('/config')
 async def config(request):
+    print("config")
     run_timer.config=run_timer.config + 1
-    if run_timer.config > (timer_config.get('timers')-1):
+    print(run_timer.config)
+    if run_timer.config > (len(timer_config.get('timers'))-1):
         run_timer.config=0
+        print("start over")
+    print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
+    display_time(run_timer.config)
 @app.get('/countdown')
 async def countdown(request):
     run_timer.countdown_start=time.ticks_ms()
+    run_timer.hold_mode=run_timer.mode
     run_timer.mode='countdown'
 
+def display_time(seconds):
+    minutes=int(seconds/60)
+    remain=seconds%60
+    display_seconds=("00"+str(remain))[-2:]
+    print(str(minutes)+":"+str(display_seconds))
 
 
 async def main():
@@ -83,19 +103,23 @@ async def hardware_loop():
     new_countdown_seconds=0
     while True:
         config=timer_config.get('timers')[run_timer.config]
+        timer_duration=(config.get('time_limit_minutes')*60)+config.get('time_limit_seconds')
+        countdown_duration=config.get('countdown_duration')
         if run_timer.mode=='run':
             new_seconds=int((time.ticks_ms()-run_timer.start_time)/1000)
             if new_seconds != seconds:
                 seconds=new_seconds
-                print(seconds)
+                display_time(timer_duration-seconds+1)
+            if seconds >= timer_duration:
+                run_timer.mode='stop'
         if run_timer.mode=='countdown':
             new_countdown_seconds=int((time.ticks_ms()-run_timer.countdown_start)/1000)
             if new_countdown_seconds != countdown_seconds:
                 countdown_seconds=new_countdown_seconds
-                print(countdown_seconds)
-        if run_timer.mode=='countdown' and (new_countdown_seconds>config.get('countdown_duration')):
+                display_time(countdown_duration-countdown_seconds)
+        if run_timer.mode=='countdown' and (new_countdown_seconds >= countdown_duration):
             run_timer.countdown_start=0
-            run_timer.mode='run'
+            run_timer.mode=run_timer.hold_mode
         await asyncio.sleep(.1)
 
 asyncio.run(main())
