@@ -27,7 +27,7 @@ app=Microdot()
 @app.route('/')
 async def index(request):
     Response.default_content_type = 'text/html'
-    return Template('index.html').render()
+    return Template('index.html').render(timer=timer_config.get('timers')[run_timer.config])
 
 @app.route('/timers',methods=['GET'])
 async def timer_list(request):
@@ -92,19 +92,12 @@ async def config(request):
     if run_timer.config > (len(timer_config.get('timers'))-1):
         run_timer.config=0
     print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
-    display_time(run_timer.config)
+    functions.display_time(run_timer.config)
 @app.get('/countdown')
 async def countdown(request):
     run_timer.countdown_start=time.ticks_ms()
     run_timer.hold_mode=run_timer.mode
     run_timer.mode='countdown'
-
-def display_time(seconds):
-    minutes=int(seconds/60)
-    remain=seconds%60
-    display_seconds=("00"+str(remain))[-2:]
-    print(str(minutes)+":"+str(display_seconds))
-
 
 async def main():
     hw_loop=asyncio.create_task( hardware_loop())
@@ -133,16 +126,17 @@ async def hardware_loop():
             new_countdown_seconds=int((time.ticks_ms()-run_timer.countdown_start)/1000)
         if run_timer.mode=='countdown' and (new_countdown_seconds >= countdown_duration):
             run_timer.countdown_start=0
-            run_timer.mode=run_timer.hold_mode
+            #run_timer.mode=run_timer.hold_mode
+            run_timer.mode='run'
 
         if run_timer.mode=='countdown':
             if new_countdown_seconds != countdown_seconds:
                 countdown_seconds=new_countdown_seconds
-                display_time(countdown_duration-countdown_seconds)
+                functions.display_time(countdown_duration-countdown_seconds)
         else:
             if new_seconds != seconds:
                 seconds=new_seconds
-                display_time(timer_duration-seconds)
+                functions.display_time(timer_duration-seconds)
         
         await asyncio.sleep(.1)
 
