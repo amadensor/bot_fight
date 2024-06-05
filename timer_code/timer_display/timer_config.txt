@@ -1,0 +1,37 @@
+{
+    "timers": [
+        {
+            "box_lights": false,
+            "time_limit_minutes": 3,
+            "pits_time_minutes": 2,
+            "time_limit_seconds": 0,
+            "countdown_duration": 10,
+            "pits_active": true,
+            "pits_time_seconds": 0,
+            "config_name": "Combat",
+            "competitor_controls": true
+        },
+        {
+            "box_lights": false,
+            "time_limit_minutes": 2,
+            "pits_time_minutes": 1,
+            "time_limit_seconds": 0,
+            "countdown_duration": 10,
+            "pits_active": true,
+            "pits_time_seconds": 0,
+            "config_name": "Control",
+            "competitor_controls": true
+        },
+        {
+            "box_lights": false,
+            "time_limit_minutes": 3,
+            "pits_time_minutes": 0,
+            "time_limit_seconds": 0,
+            "countdown_duration": 10,
+            "pits_active": false,
+            "pits_time_seconds": 0,
+            "config_name": "Rumble",
+            "competitor_controls": false
+        }
+    ]
+}

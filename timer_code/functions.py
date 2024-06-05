@@ -13,8 +13,11 @@ def start_network():
     sta_if.scan()                             # Scan for available access points
     sta_if.connect(net_config_data.get('ssid'),net_config_data.get('psk')) # Connect to an AP
     print(sta_if.isconnected())
-    sta_if.ifconfig(net_config_data.get('ifc'))
+    ifc=net_config_data.get('ifc')
+    if ifc:
+        sta_if.ifconfig(ifc)
     print(sta_if.ifconfig())
+    return sta_if
 
 def display_time(seconds):
     display_patterns=[63,6,91,79,102,109,125,7,127,111]
@@ -34,4 +37,5 @@ def display_time(seconds):
     display_array.reverse()
     display_array[1]=display_array[1]+128 # turn on the colon
     display.write(display_array)
+
 
