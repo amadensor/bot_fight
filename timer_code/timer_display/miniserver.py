@@ -5,6 +5,8 @@ import json
 from microdot.microdot import Microdot,Response
 from microdot.utemplate import Template
 
+functions.display_time(0)
+
 sta_if=functions.start_network()
 
 while not sta_if.isconnected():
@@ -65,6 +67,7 @@ async def timer_list(request):
         timer_file.write(json.dumps(timer_config))
     Response.default_content_type = 'text/html'
     return (str(Template("index.html").render()))
+
 @app.get('/start')
 async def start(request):
     if run_timer.mode=='pause':
