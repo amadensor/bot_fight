@@ -1,6 +1,6 @@
 import functions
 import machine
-import requests
+import urequests as requests
 import json
 import time
 start_pin_num=15
@@ -22,22 +22,27 @@ while not sta_if.isconnected():
 print(sta_if.ifconfig())
 
 def start_button(pin):
+    global action
     action="start"
     print("start pressed")
 
 def countdown_button(pin):
+    global action
     action="countdown"
     print("countdown pressed")
 
 def reset_button(pin):
+    global action
     action="reset"
     print("reset pressed")
 
 def config_button(pin):
+    global action
     action="config"
     print("config pressed")
 
 def stop_button(pin):
+    global action
     action="stop"
     print("stop pressed")
 
@@ -61,12 +66,15 @@ stop_pin.irq(trigger=machine.Pin.IRQ_RISING, handler=stop_button)
 def main():
     global action
     if (action):
-        url=config_data.get('timer_url')+"/"+action
-        print(action+" sent", url)
-        requests.get(url)
-        print('responded')
-        time.sleep(.5)
-        action=None
+        try:
+            url=config_data.get('timer_url')+"/"+action
+            print(action+" sent", url)
+            resp=requests.get(url,timeout=1)
+            time.sleep(.5)
+            action=None
+        except Exception as e:
+            print(e)
+            pass
     time.sleep(.01)
 
 while True:
