@@ -1,0 +1,4 @@
+thonny
+rshell
+esptool
+mpy-cross
