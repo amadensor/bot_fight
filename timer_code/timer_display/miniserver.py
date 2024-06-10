@@ -1,5 +1,6 @@
 import time
 import asyncio
+import network
 import functions
 import json
 from microdot.microdot import Microdot,Response
@@ -7,11 +8,37 @@ from microdot.utemplate import Template
 
 functions.display_time(0)
 
-sta_if=functions.start_network()
+def start_network():
+    with open("net_config.txt","r") as net_data:
+        config_string=net_data.read()
+        net_config_data=json.loads(config_string)
+    ap_if = network.WLAN(network.AP_IF)
+    print(net_config_data)
+    ap_if.config(ssid=net_config_data.get('ssid'),key=net_config_data.get('psk')) # Connect to an AP
+    if net_config_data.get('ifc'):
+        ap_if.ifconfig(net_config_data.get('ifc'))
+    ap_if.active(True)
+    while not ap_if.active():
+        print(ap_if.active())
+    print(ap_if.isconnected())
+    print(ap_if.ifconfig())
+    return ap_if
 
-while not sta_if.isconnected():
-    print(sta_if.isconnected())
+
+ap_if=start_network()
+
+while not ap_if.isconnected():
+    print(ap_if.isconnected())
     time.sleep(1)
+
+for t in range(3):
+    ip=ap_if.ifconfig()[0].split('.')
+    for digit in ip:
+        functions.display_number(int(digit))
+        time.sleep(.5)
+    functions.display_number(0)
+    time.sleep(.25)
+
 
 class BotTimer():
     start_time=0
@@ -67,7 +94,6 @@ async def timer_list(request):
         timer_file.write(json.dumps(timer_config))
     Response.default_content_type = 'text/html'
     return (str(Template("index.html").render()))
-
 @app.get('/start')
 async def start(request):
     if run_timer.mode=='pause':
@@ -148,5 +174,7 @@ async def hardware_loop():
         await asyncio.sleep(0)
 
 asyncio.run(main())
+
+
 
 

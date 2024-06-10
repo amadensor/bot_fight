@@ -3,7 +3,7 @@ import json
 import tm1637
 import machine
 
-display=tm1637.TM1637(clk=machine.Pin(5),dio=machine.Pin(4))
+display=tm1637.TM1637(clk=machine.Pin(3),dio=machine.Pin(2))
 
 def start_network():
     with open("net_config.txt","r") as net_data:
@@ -20,15 +20,19 @@ def start_network():
     return sta_if
 
 def display_time(seconds):
-    display_patterns=[63,6,91,79,102,109,125,7,127,111]
     minutes=int(seconds/60)
     remain=seconds%60
     display_val=(minutes*100)+remain
+    display_number(display_val)
+
+
+def display_number(disp_number):
+    display_patterns=[63,6,91,79,102,109,125,7,127,111]
     display_array=[]
     #Build an array of the digits
-    while display_val:
-        display_char=display_val%10
-        display_val=int(display_val/10)
+    while disp_number:
+        display_char=disp_number%10
+        disp_number=int(disp_number/10)
         #Use the bit pattern for the shape of the letter
         display_array.append(display_patterns[display_char])
     #Pad with blanks
@@ -37,5 +41,4 @@ def display_time(seconds):
     display_array.reverse()
     display_array[1]=display_array[1]+128 # turn on the colon
     display.write(display_array)
-
-
+    
