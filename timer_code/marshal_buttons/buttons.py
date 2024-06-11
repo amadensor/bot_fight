@@ -16,6 +16,11 @@ with open("marshal_config.txt","r") as net_data:
 
 sta_if=functions.start_network()
 
+if not config_data.get('timer_url'):
+    ip=sta_if.ifconfig[0].split(',')
+    url="http://"+ip[0]+'.'+ip[1]+'.'+ip[2]+'.1'
+    config_data['timer_url']=url
+
 while not sta_if.isconnected():
     print(sta_if.isconnected())
     time.sleep(1)
