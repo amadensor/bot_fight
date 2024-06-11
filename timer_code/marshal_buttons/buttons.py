@@ -9,6 +9,7 @@ reset_pin_num=13
 config_pin_num=12
 stop_pin_num=11
 action=None
+ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
 
 with open("marshal_config.txt","r") as net_data:
     config_string=net_data.read()
@@ -16,33 +17,39 @@ with open("marshal_config.txt","r") as net_data:
 
 sta_if=functions.start_network()
 
-if not config_data.get('timer_url'):
-    ip=sta_if.ifconfig[0].split(',')
-    url="http://"+ip[0]+'.'+ip[1]+'.'+ip[2]+'.1'
-    config_data['timer_url']=url
-
 while not sta_if.isconnected():
     print(sta_if.isconnected())
     time.sleep(1)
 print(sta_if.ifconfig())
 
+if not config_data.get('timer_url'):
+    ip=sta_if.ifconfig()[0].split('.')
+    url="http://"+ip[0]+'.'+ip[1]+'.'+ip[2]+'.1'
+    config_data['timer_url']=url
+ready_light.on()
+
 def start_button(pin):
+    global action
     action="start"
     print("start pressed")
 
 def countdown_button(pin):
+    global action
     action="countdown"
     print("countdown pressed")
 
 def reset_button(pin):
+    global action
     action="reset"
     print("reset pressed")
 
 def config_button(pin):
+    global action
     action="config"
     print("config pressed")
 
 def stop_button(pin):
+    global action
     action="stop"
     print("stop pressed")
 
@@ -68,11 +75,17 @@ def main():
     if (action):
         url=config_data.get('timer_url')+"/"+action
         print(action+" sent", url)
-        requests.get(url)
-        print('responded')
-        time.sleep(.5)
-        action=None
+        try:
+            requests.get(url, timeout=1)
+            print('responded')
+            time.sleep(.5)
+            action=None
+            ready_light.on()
+        except:
+            ready_light.off()
+            print("retry")
     time.sleep(.01)
 
 while True:
     main()
+
