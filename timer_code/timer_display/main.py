@@ -163,7 +163,8 @@ def countdown_button(pin):
 def countdown():
     #print("countdown")
     run_timer.countdown_start=time.ticks_ms()
-    run_timer.hold_mode=run_timer.mode
+    if run_timer.mode !="countdown":
+        run_timer.hold_mode=run_timer.mode
     run_timer.mode='countdown'
 
 start_pin=machine.Pin(start_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
@@ -215,8 +216,8 @@ async def hardware_loop():
             new_countdown_seconds=int((time.ticks_ms()-run_timer.countdown_start)/1000)
         if run_timer.mode=='countdown' and (new_countdown_seconds >= countdown_duration):
             run_timer.countdown_start=0
-            #run_timer.mode=run_timer.hold_mode
-            run_timer.mode='run'
+            run_timer.mode=run_timer.hold_mode
+            #run_timer.mode='run'
 
         if run_timer.mode=='countdown':
             if new_countdown_seconds != countdown_seconds:
