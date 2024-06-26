@@ -1,9 +1,9 @@
 [submodule "timer_code/timer_display/microdot"]
-	path = timer_code/timer_display/microdot
+	path = timer_code/core_processor/microdot
 	url = git@github.com:miguelgrinberg/microdot.git
 [submodule "timer_code/timer_display/utemplate"]
-	path = timer_code/timer_display/utemplate
+	path = timer_code/core_processor/utemplate
 	url = git@github.com:pfalcon/utemplate.git
 [submodule "timer_code/timer_display/micropython-tm1637"]
-	path = timer_code/timer_display/micropython-tm1637
+	path = timer_code/core_processor/micropython-tm1637
 	url = git@github.com:mcauser/micropython-tm1637.git
