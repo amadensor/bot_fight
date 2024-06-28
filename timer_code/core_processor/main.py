@@ -6,16 +6,12 @@ import json
 from microdot.microdot import Microdot,Response
 from microdot.utemplate import Template
 
-start_pin_num=15
-countdown_pin_num=14
-reset_pin_num=13
-config_pin_num=12
-stop_pin_num=11
 ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
 
 action=None
 
 functions.display_time(0)
+msg_bus=functions.Bus()
 
 def start_network():
     with open("net_config.txt","r") as net_data:
@@ -105,10 +101,6 @@ async def timer_list(request):
     Response.default_content_type = 'text/html'
     return (str(Template("index.html").render()))
 
-def start_button(pin):
-    global action
-    action="start"
-
 def start():
     #print("start")
     if run_timer.mode=='pause':
@@ -122,18 +114,10 @@ def start():
         run_timer.start_time=time.ticks_ms()
         run_timer.mode='run'
 
-def stop_button(pin):
-    global action
-    action="stop"
-
 def stop():
     #print("stop")
     run_timer.stop_time=time.ticks_ms()
     run_timer.mode='stop'
-
-def reset_button(pin):
-    global action
-    action="reset"
 
 def reset():
     #print("reset")
@@ -144,10 +128,6 @@ def reset():
         run_timer.elapsed=0
         run_timer.mode='stop'
 
-def config_button(pin):
-    global action
-    action="config"
-
 def config_handler():
     #print("config")
     run_timer.config=run_timer.config + 1
@@ -156,33 +136,12 @@ def config_handler():
     print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
     functions.display_time(run_timer.config)
 
-def countdown_button(pin):
-    global action
-    action="countdown"
-
 def countdown():
     #print("countdown")
     run_timer.countdown_start=time.ticks_ms()
     if run_timer.mode !="countdown":
         run_timer.hold_mode=run_timer.mode
     run_timer.mode='countdown'
-
-start_pin=machine.Pin(start_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
-start_pin.irq(trigger=machine.Pin.IRQ_RISING, handler=start_button)
-
-countdown_pin=machine.Pin(countdown_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
-countdown_pin.irq(trigger=machine.Pin.IRQ_RISING, handler=countdown_button)
-
-reset_pin=machine.Pin(reset_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
-reset_pin.irq(trigger=machine.Pin.IRQ_RISING, handler=reset_button)
-
-config_pin=machine.Pin(config_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
-config_pin.irq(trigger=machine.Pin.IRQ_RISING, handler=config_button)
-
-stop_pin=machine.Pin(stop_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
-stop_pin.irq(trigger=machine.Pin.IRQ_RISING, handler=stop_button)
-
-
 
 async def main():
     print("web")
@@ -228,6 +187,10 @@ async def hardware_loop():
                 seconds=new_seconds
                 functions.display_time(timer_duration-seconds)
         
+        msg=msg_bus.handler()
+        if msg:
+            action=msg.get('button')
+
         if action:
             if action=="start":
                 start()

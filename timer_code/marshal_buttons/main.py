@@ -37,6 +37,7 @@ def hardware_loop():
         msg_bus.send_message(message)
         time.sleep(.25)
         action=None
+    msg_bus.handler()
     
 while True:
     hardware_loop()
