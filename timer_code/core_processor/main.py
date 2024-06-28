@@ -1,17 +1,50 @@
 import time
 import asyncio
+import network
 import functions
 import json
 from microdot.microdot import Microdot,Response
 from microdot.utemplate import Template
 
+ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
+
+action=None
+
 functions.display_time(0)
+msg_bus=functions.Bus()
 
-sta_if=functions.start_network()
+def start_network():
+    with open("net_config.txt","r") as net_data:
+        config_string=net_data.read()
+        net_config_data=json.loads(config_string)
+    ap_if = network.WLAN(network.AP_IF)
+    print(net_config_data)
+    ap_if.config(ssid=net_config_data.get('ssid'),key=net_config_data.get('psk')) # Connect to an AP
+    if net_config_data.get('ifc'):
+        ap_if.ifconfig(net_config_data.get('ifc'))
+    ap_if.active(True)
+    while not ap_if.active():
+        print(ap_if.active())
+    print(ap_if.isconnected())
+    print(ap_if.ifconfig())
+    return ap_if
 
-while not sta_if.isconnected():
-    print(sta_if.isconnected())
+
+ap_if=start_network()
+
+while not ap_if.isconnected():
+    print(ap_if.isconnected())
     time.sleep(1)
+
+for t in range(3):
+    ip=ap_if.ifconfig()[0].split('.')
+    for digit in ip:
+        functions.display_number(int(digit))
+        time.sleep(.5)
+    functions.display_number(0)
+    time.sleep(.25)
+
+ready_light.on()
 
 class BotTimer():
     start_time=0
@@ -68,8 +101,8 @@ async def timer_list(request):
     Response.default_content_type = 'text/html'
     return (str(Template("index.html").render()))
 
-@app.get('/start')
-async def start(request):
+def start():
+    #print("start")
     if run_timer.mode=='pause':
         run_timer.start_time=time.ticks_ms()-run_timer.elapsed
         run_timer.mode='run'
@@ -81,38 +114,47 @@ async def start(request):
         run_timer.start_time=time.ticks_ms()
         run_timer.mode='run'
 
-@app.get('/stop')
-async def stop(request):
+def stop():
+    #print("stop")
     run_timer.stop_time=time.ticks_ms()
     run_timer.mode='stop'
-@app.get('/reset')
-async def reset(request):
+
+def reset():
+    #print("reset")
     if run_timer.mode=='countdown':
         run_timer.mode='run'
     if run_timer.mode=='pause':
         run_timer.stop_time=0
         run_timer.elapsed=0
         run_timer.mode='stop'
-@app.get('/config')
-async def config(request):
+
+def config_handler():
+    #print("config")
     run_timer.config=run_timer.config + 1
     if run_timer.config > (len(timer_config.get('timers'))-1):
         run_timer.config=0
     print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
     functions.display_time(run_timer.config)
-@app.get('/countdown')
-async def countdown(request):
+
+def countdown():
+    #print("countdown")
     run_timer.countdown_start=time.ticks_ms()
-    run_timer.hold_mode=run_timer.mode
+    if run_timer.mode !="countdown":
+        run_timer.hold_mode=run_timer.mode
     run_timer.mode='countdown'
 
 async def main():
-    hw_loop=asyncio.create_task( hardware_loop())
+    print("web")
     web=asyncio.create_task( app.start_server(port=80, debug=True))
-    await hw_loop
+    print("hw")
+    #hw_loop=asyncio.create_task( hardware_loop())
+    await hardware_loop()
+    print("wait")
     await web
 
 async def hardware_loop():
+    print("hw loop")
+    global action
     seconds=1
     new_seconds=0
     countdown_seconds=0
@@ -133,8 +175,8 @@ async def hardware_loop():
             new_countdown_seconds=int((time.ticks_ms()-run_timer.countdown_start)/1000)
         if run_timer.mode=='countdown' and (new_countdown_seconds >= countdown_duration):
             run_timer.countdown_start=0
-            #run_timer.mode=run_timer.hold_mode
-            run_timer.mode='run'
+            run_timer.mode=run_timer.hold_mode
+            #run_timer.mode='run'
 
         if run_timer.mode=='countdown':
             if new_countdown_seconds != countdown_seconds:
@@ -145,8 +187,32 @@ async def hardware_loop():
                 seconds=new_seconds
                 functions.display_time(timer_duration-seconds)
         
+        msg=msg_bus.handler()
+        if msg:
+            action=msg.get('button')
+
+        if action:
+            if action=="start":
+                start()
+            if action=="stop":
+                if run_timer.mode=="stop":
+                    print("double stop")
+                    app.shutdown()
+                    ready_light.off()
+                    machine.reset()
+                    break
+                stop()
+            if action=="reset":
+                reset()
+            if action=="config":
+                config_handler()
+            if action=="countdown":
+                countdown()
+            print("do")
+            await asyncio.sleep(.5)
+            print("next")
+            action=None
         await asyncio.sleep(0)
 
 asyncio.run(main())
-
 

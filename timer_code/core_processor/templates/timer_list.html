@@ -2,13 +2,22 @@
 <html>
 
 <body>
+    <a href="/">Current status</a>
     <form method="post">
         <table border="1">
-            {% for timer in timers %}
+            {% for i,timer in enumerate(timers) %}
             <tr>
                 <td>Name</td>
                 <td>
                     <input type="text" name="config_name" value="{{ timer.get('config_name')}}">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Config Number
+                </td>
+                <td>
+                    {{ i }}
                 </td>
             </tr>
             <tr>
