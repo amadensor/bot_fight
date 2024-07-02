@@ -4,7 +4,7 @@ import machine
 import collections
 import time
 
-display=tm1637.TM1637(clk=machine.Pin(3),dio=machine.Pin(2))
+display=tm1637.TM1637(clk=machine.Pin(20),dio=machine.Pin(21))
 
 def display_time(seconds):
     minutes=int(seconds/60)
