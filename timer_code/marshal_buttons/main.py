@@ -12,7 +12,7 @@ ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
 action=None
 msg_bus=functions.Bus()
 
-ready_light.on()
+ready_light.off()
 
 start_pin=machine.Pin(start_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
 countdown_pin=machine.Pin(countdown_pin_num,machine.Pin.IN, machine.Pin.PULL_DOWN)
@@ -37,6 +37,9 @@ def hardware_loop():
         msg_bus.send_message(message)
         time.sleep(.25)
         action=None
-    
+    msg=msg_bus.handler()
+    if msg:
+        ready_light.on()
+
 while True:
     hardware_loop()
