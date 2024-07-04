@@ -1,9 +1,9 @@
 #  How to use the system:
 
-*  The network name and password are in the [timer_code/core_processor/net_config.txt] file.
+*  The network name and password are in the [net_config.txt](timer_code/core_processor/net_config.txt) file.
 *  The IP address to point your browser to is displayed as the system boots, assuming a display is attached.
 *  The web connection is http, not https.
-*  Changes to configuration can be done by editing the [timer_code/core_processor/timer_config.txt] configuration file, or by using the web interface.
+*  Changes to configuration can be done by editing the [timer_config.txt](timer_code/core_processor/timer_config.txt) configuration file, or by using the web interface.
 *  The changes made via web also are saved and will persist after a power cycle.
 *  Each cable must connect an A outlet to a B outlet.
    *  This is to accomodate the TX/RX crossover
@@ -14,7 +14,7 @@
 
 #  Technical details
 
-*  Each module has a Pi Pico in it.  The wiring details are in the [pin_connection.html] file.
+*  Each module has a Pi Pico in it.  The wiring details are in the [pin_connection.html](pin_connection.html) file.
 *  The entire system runs on a message bususing UART over CAT-5.
 *  This is using the microdot and utemplate frameworks for simpler web serving and easier maintenance.
 *  As this is all Micropython, very little effort would be required (changing pin numbers) to port this to other microcontrollers.
