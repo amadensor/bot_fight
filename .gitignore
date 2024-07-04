@@ -161,3 +161,4 @@ cython_debug/
 #.idea/
 timer_code/net_config.txt
 
+.vscode

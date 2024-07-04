@@ -10,8 +10,8 @@ ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
 
 action=None
 
-functions.display_time(0)
 msg_bus=functions.Bus()
+msg_bus.send_message({"display_time":0})
 
 def start_network():
     with open("net_config.txt","r") as net_data:
@@ -39,10 +39,11 @@ while not ap_if.isconnected():
 for t in range(3):
     ip=ap_if.ifconfig()[0].split('.')
     for digit in ip:
-        functions.display_number(int(digit))
+        msg_bus.send_message({"display_value":(int(digit))})
         time.sleep(.5)
-    functions.display_number(0)
+    msg_bus.send_message({"display_value":"    "})
     time.sleep(.25)
+msg_bus.send_message({"display_value":"ready"})
 
 ready_light.on()
 
@@ -134,7 +135,7 @@ def config_handler():
     if run_timer.config > (len(timer_config.get('timers'))-1):
         run_timer.config=0
     print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
-    functions.display_time(run_timer.config)
+    msg_bus.send_message({"display_time":run_timer.config})
 
 def countdown():
     #print("countdown")
@@ -181,11 +182,11 @@ async def hardware_loop():
         if run_timer.mode=='countdown':
             if new_countdown_seconds != countdown_seconds:
                 countdown_seconds=new_countdown_seconds
-                functions.display_time(countdown_duration-countdown_seconds)
+                msg_bus.send_message({"display_time":(countdown_duration-countdown_seconds)})
         else:
             if new_seconds != seconds:
                 seconds=new_seconds
-                functions.display_time(timer_duration-seconds)
+                msg_bus.send_message({"display_time":(timer_duration-seconds)})
         
         msg=msg_bus.handler()
         if msg:
@@ -215,4 +216,5 @@ async def hardware_loop():
         await asyncio.sleep(0)
 
 asyncio.run(main())
+
 
