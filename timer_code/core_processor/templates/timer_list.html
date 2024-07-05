@@ -4,21 +4,15 @@
 <body>
     <a href="/">Current status</a>
     <form method="post">
+        {% for i,timer in enumerate(timers) %}
+        <h2>Config: {{ i+1 }}</h2>
         <table border="1">
-            {% for i,timer in enumerate(timers) %}
             <tr>
                 <td>Name</td>
                 <td>
                     <input type="text" name="config_name" value="{{ timer.get('config_name')}}">
                 </td>
-            </tr>
-            <tr>
-                <td>
-                    Config Number
-                </td>
-                <td>
-                    {{ i }}
-                </td>
+                <td><a href='/timers/delete/{{ i }}'>Delete</a></td>
             </tr>
             <tr>
                 <td>Time Limit</td>
@@ -79,10 +73,10 @@
                     </select>
                 </td>
             </tr>
-            <tr><td colspan="3">&nbsp;</td></tr>
-            {% endfor %}
         </table>
-        <input type="submit">
+        {% endfor %}
+        <a href="timers/add">Add a new config</a>
+        <input type="submit" value="Save Changes">
     </form>
 </body>
 
