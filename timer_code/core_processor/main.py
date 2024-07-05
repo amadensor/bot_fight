@@ -3,7 +3,7 @@ import asyncio
 import network
 import functions
 import json
-from microdot.microdot import Microdot,Response
+from microdot.microdot import Microdot,Response,redirect
 from microdot.utemplate import Template
 
 ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
@@ -75,6 +75,28 @@ async def timer_list(request):
     Response.default_content_type = 'text/html'
     return (str(Template("timer_list.html").render(timers=timers)))
 
+@app.route('/timers/add',methods=['GET'])
+async def timer_add(request):
+    timer_config['timers'].append(
+        {
+            "box_lights": False,
+            "time_limit_minutes": 3,
+            "pits_time_minutes": 0,
+            "time_limit_seconds": 0,
+            "countdown_duration": 10,
+            "pits_active": False,
+            "pits_time_seconds": 0,
+            "config_name": "New Config",
+            "competitor_controls": False
+            }
+        )
+    return redirect('/timers')
+
+@app.route('/timers/delete/<id>',methods=['GET'])
+async def timer_add(request,id):
+    timer_config['timers'].pop(int(id))
+    return redirect('/timers')
+
 @app.route('/timers',methods=['POST'])
 async def timer_list(request):
     global timer_config
@@ -99,8 +121,7 @@ async def timer_list(request):
 
     with open("timer_config.txt","w") as timer_file:
         timer_file.write(json.dumps(timer_config))
-    Response.default_content_type = 'text/html'
-    return (str(Template("index.html").render()))
+    return redirect('/timers')
 
 def start():
     #print("start")
@@ -135,7 +156,7 @@ def config_handler():
     if run_timer.config > (len(timer_config.get('timers'))-1):
         run_timer.config=0
     print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
-    msg_bus.send_message({"display_time":run_timer.config})
+    msg_bus.send_message({"display_time":(run_timer.config)+1})
 
 def countdown():
     #print("countdown")
