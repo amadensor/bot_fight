@@ -1,0 +1,22 @@
+include<includes.scad>
+  
+difference(){
+difference()
+{
+    linear_extrude(box_height)
+offset(box_thickness)
+top_plate();
+   translate([0,0,box_thickness])
+linear_extrude(box_height)
+top_plate();
+}
+{
+translate([box_depth-5,(button_width/2)-port_width,(box_height)-(port_height)])
+rotate([0,90,0])
+{
+    linear_extrude(20)
+    {translate([0,port_height+5,0])
+    square([port_height,port_width]);
+    square([port_height,port_width]);}
+}
+}}
