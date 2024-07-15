@@ -19,19 +19,19 @@ class Bus:
 
     def handler(self):
         while self.ser0.any():
-            msg=self.ser0.readline().decode()
-            print("0",msg)
-            self.ser1.write(msg)
             try:
+                msg=self.ser0.readline().decode()
+                print("0",msg)
+                self.ser1.write(msg)
                 print("queue 0")
                 self.q.append(json.loads(msg))
             except:
                 pass
         while self.ser1.any():
-            msg=self.ser1.readline().decode()
-            print("1",msg)
-            self.ser0.write(msg)
             try:
+                msg=self.ser1.readline().decode()
+                print("1",msg)
+                self.ser0.write(msg)
                 print("queue 1")
                 self.q.append(json.loads(msg))
             except:
