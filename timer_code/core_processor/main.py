@@ -149,6 +149,10 @@ def reset():
         run_timer.stop_time=0
         run_timer.elapsed=0
         run_timer.mode='stop'
+    if run_timer.mode=='stop':
+        config=timer_config.get('timers')[run_timer.config]
+        timer_duration=(config.get('time_limit_minutes')*60)+config.get('time_limit_seconds')
+        msg_bus.send_message({'display_time':timer_duration})
 
 def config_handler():
     #print("config")
@@ -156,7 +160,8 @@ def config_handler():
     if run_timer.config > (len(timer_config.get('timers'))-1):
         run_timer.config=0
     print(timer_config.get('timers',[])[run_timer.config].get('config_name'))
-    msg_bus.send_message({"display_time":(run_timer.config)+1})
+    config_msg=str((run_timer.config)+1)+' - '+timer_config.get('timers',[])[run_timer.config].get('config_name')
+    msg_bus.send_message({"display_value":config_msg})
 
 def countdown():
     #print("countdown")

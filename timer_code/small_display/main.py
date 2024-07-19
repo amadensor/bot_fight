@@ -15,9 +15,11 @@ def display_time(seconds):
     
 def main():
     global connected
+    first_time=True
     while True:
-        if not connected:
-            display.show('conn')
+        if not connected and first_time:
+            first_time=False
+            display.show('Connect')
         msg=msg_bus.handler()
         if msg:
             connected=True
@@ -29,6 +31,15 @@ def main():
                 except:
                     pass
             if disp_value:
-                display.show(str(disp_value)+"    ")
+                if len(str(disp_value))>4:
+                    try:
+                        display.scroll(disp_value)
+                    except:
+                        pass
+                else:
+                    try:
+                        display.show(str(disp_value)+"    ")
+                    except:
+                        pass
 
 main()
