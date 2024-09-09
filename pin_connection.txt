@@ -3,7 +3,7 @@ Common:
 Blue - VCC 4\
 Brown - GND 7\
 RXa, TXb - 1\
-TXa, RXb - 3
+TXa, RXb - 2
 
   Use    GPIO#   Pico   RJ-45A   RJ-45B
   ------ ------- ------ -------- --------
