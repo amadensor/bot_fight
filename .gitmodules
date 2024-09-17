@@ -7,3 +7,6 @@
 [submodule "timer_code/timer_display/micropython-tm1637"]
 	path = timer_code/micropython-tm1637
 	url = git@github.com:mcauser/micropython-tm1637.git
+[submodule "timer_code/large_display/micropython-74hc595"]
+	path = timer_code/large_display/micropython-74hc595
+	url = git@github.com:mcauser/micropython-74hc595.git

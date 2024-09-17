@@ -1,0 +1,45 @@
+Common:
+
+Blue - VCC 4\
+Brown - GND 7\
+RXa, TXb - 1\
+TXa, RXb - 2
+
+  Use    GPIO#   Pico   RJ-45A   RJ-45B
+  ------ ------- ------ -------- --------
+  5VDC   VSYS    39     4        4
+  GND    GND     38     7        7
+  TXa    0       1      1        
+  RXa    1       2      2        
+  TXb    4       6               2
+  RXb    5       7               1
+
+Marshal buttons:
+
+  Use                GPIO#       Pico
+  ------------------ ----------- ------
+  3.3v for buttons   3.3V(OUT)   36
+  start              15          20
+  countdown          14          19
+  reset              13          17
+  config             12          16
+  stop               11          15
+  ready light        10          14
+
+Small display:
+
+  Use   GPIO#       Pico
+  ----- ----------- ------
+  DIO   21          27
+  CLK   20          26
+  GND   GND         28
+  VCC   3.3V(OUT)   36
+
+Large display:
+
+  Use     GPIO#   Pico
+  ------- ------- ------
+  SER     21      27
+  CLK     20      26
+  LATCH   19      25
+  GND     GND     28
