@@ -1,4 +1,0 @@
-{
-    "ssid": "bot-rumble",
-    "psk": "fightrobotsfight"
-}

@@ -1,10 +1,6 @@
 import time
-import asyncio
-import network
 import functions
 import json
-from microdot.microdot import Microdot,Response,redirect
-from microdot.utemplate import Template
 
 ready_light=machine.Pin(machine.Pin(10),machine.Pin.OUT)
 
@@ -13,36 +9,6 @@ action=None
 msg_bus=functions.Bus()
 msg_bus.send_message({"display_time":0})
 
-def start_network():
-    with open("net_config.txt","r") as net_data:
-        config_string=net_data.read()
-        net_config_data=json.loads(config_string)
-    ap_if = network.WLAN(network.AP_IF)
-    print(net_config_data)
-    ap_if.config(ssid=net_config_data.get('ssid'),key=net_config_data.get('psk')) # Connect to an AP
-    if net_config_data.get('ifc'):
-        ap_if.ifconfig(net_config_data.get('ifc'))
-    ap_if.active(True)
-    while not ap_if.active():
-        print(ap_if.active())
-    print(ap_if.isconnected())
-    print(ap_if.ifconfig())
-    return ap_if
-
-
-ap_if=start_network()
-
-while not ap_if.isconnected():
-    print(ap_if.isconnected())
-    time.sleep(1)
-
-for t in range(3):
-    ip=ap_if.ifconfig()[0].split('.')
-    for digit in ip:
-        msg_bus.send_message({"display_value":(int(digit))})
-        time.sleep(.5)
-    msg_bus.send_message({"display_value":"    "})
-    time.sleep(.25)
 msg_bus.send_message({"display_value":"ready"})
 
 ready_light.on()
@@ -61,67 +27,6 @@ run_timer=BotTimer()
 with open("timer_config.txt","r") as timer_data:
     timer_string=timer_data.read()
     timer_config=json.loads(timer_string)
-
-app=Microdot()
-
-@app.route('/')
-async def index(request):
-    Response.default_content_type = 'text/html'
-    return Template('index.html').render(timer=timer_config.get('timers')[run_timer.config])
-
-@app.route('/timers',methods=['GET'])
-async def timer_list(request):
-    timers=timer_config.get('timers')
-    Response.default_content_type = 'text/html'
-    return (str(Template("timer_list.html").render(timers=timers)))
-
-@app.route('/timers/add',methods=['GET'])
-async def timer_add(request):
-    timer_config['timers'].append(
-        {
-            "box_lights": False,
-            "time_limit_minutes": 3,
-            "pits_time_minutes": 0,
-            "time_limit_seconds": 0,
-            "countdown_duration": 10,
-            "pits_active": False,
-            "pits_time_seconds": 0,
-            "config_name": "New Config",
-            "competitor_controls": False
-            }
-        )
-    return redirect('/timers')
-
-@app.route('/timers/delete/<id>',methods=['GET'])
-async def timer_add(request,id):
-    timer_config['timers'].pop(int(id))
-    return redirect('/timers')
-
-@app.route('/timers',methods=['POST'])
-async def timer_list(request):
-    global timer_config
-    form_data=request.form
-    rows=len(form_data.getlist('time_limit_minutes'))
-    new_config=[]
-    for t in range(rows):
-        new_config.append(
-            {
-                'time_limit_minutes':int(form_data.getlist('time_limit_minutes')[t]),
-                'box_lights':(form_data.getlist('box_lights')[t]=='True'),
-                'pits_time_minutes':int(form_data.getlist('pits_time_minutes')[t]),
-                'time_limit_seconds':int(form_data.getlist('time_limit_seconds')[t]),
-                'countdown_duration':int(form_data.getlist('countdown_duration')[t]),
-                'pits_active':(form_data.getlist('pits_active')[t]=='True'),
-                'pits_time_seconds':int(form_data.getlist('pits_time_seconds')[t]),
-                'config_name':form_data.getlist('config_name')[t],
-                'competitor_controls':form_data.getlist('competitor_controls')[t]=='True',
-        }   
-        )
-    timer_config['timers']=new_config
-
-    with open("timer_config.txt","w") as timer_file:
-        timer_file.write(json.dumps(timer_config))
-    return redirect('/timers')
 
 def start():
     #print("start")
@@ -165,16 +70,10 @@ def countdown():
         run_timer.hold_mode=run_timer.mode
     run_timer.mode='countdown'
 
-async def main():
-    print("web")
-    web=asyncio.create_task( app.start_server(port=80, debug=True))
-    print("hw")
-    #hw_loop=asyncio.create_task( hardware_loop())
-    await hardware_loop()
-    print("wait")
-    await web
+def main():
+    hardware_loop()
 
-async def hardware_loop():
+def hardware_loop():
     print("hw loop")
     global action
     seconds=1
@@ -231,11 +130,9 @@ async def hardware_loop():
             if action=="countdown":
                 countdown()
             print("do")
-            await asyncio.sleep(.5)
             print("next")
             action=None
-        await asyncio.sleep(0)
 
-asyncio.run(main())
+main()
 
 
